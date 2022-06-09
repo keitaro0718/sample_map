@@ -28,38 +28,6 @@
 <script src="./js/BmapQuery.js"></script>
 
 <script>
-
-// javascriptの技術でurlを実行する
-$.ajax({
-  url: 'https://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=15d307462672d2ed&lat=34.702492&lng=135.495965&range=5&order=4&format=jsonp',
-  type: 'GET',
-  dataType: 'jsonp',
-  jsonpCallback: 'callback'
-}).done(function(data) {
-  var dummy = data; // 成功時 この処理はダミーなので変更してください
-  console.log(data);
-    const items = data.shop;
-        for (let i = 0; i < 10; i++){
-                console.log(items[i]);// itemsを一個ずつ取得
-                const name = items[i].name;
-                const address = items[i].address;
-                    console.log(name);
-            $('#content').append(`<ul><li>${name}:${address}</li></ul>`)
-    }
-}).fail(function(data) {
-  var dummy = data; // 失敗時
-});
-
-// let searchByposition = "https://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=15d307462672d2ed&large_area=Z001&format=jsonp"
-// $.get(searchByposition, function(data){
-//     console.log(data);
-//     const items = data.items;
-//     for (let i = 0; i < 5; i++){
-//         console.log(items[i]);// itemsを一個ずつ取得
-//     }
-//   })
-
-
 let map;
 
 //1．位置情報の取得に成功した時の処理 positionが引数
@@ -68,7 +36,24 @@ function mapsInit(position) {
     const lat = position.coords.latitude;
     const lon = position.coords.longitude;
     $('#view').html(`緯度:${lat} 経度:${lon}`)
-
+    // javascriptの技術でurlを実行する
+    $.ajax({
+      url: `https://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=15d307462672d2ed&lat=${lat}&${lon}=139.7629718&range=5&order=4&format=jsonp`,
+      type: 'GET',
+      dataType: 'jsonp',
+      jsonpCallback: 'callback'
+    }).done(function(data) {
+      var dummy = data; // 成功時 この処理はダミーなので変更してください
+      console.log(data);
+      const shoplist = data.results.shop
+      console.log(shoplist);
+      for(let i = 0; i<shoplist.length; i++){
+        $('#content').append(`<ul><li>${shoplist[i].name}</li></ul>`)
+        let pin = map.pinText(`${shoplist[i].lat}`, `${shoplist[i].lng}`, `${shoplist[i].name}`)
+      }
+    }).fail(function(data) {
+      alert("エラー"); // 失敗時
+    });
 
     //2. Display Map
     //------------------------------------------------------------------------
